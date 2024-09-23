@@ -17,7 +17,7 @@ function applyCustomFont(fontName) {
     // Define the font-family CSS property
     let fontFamily = `'${fontName}', sans-serif !important`;
   
-    // For web-safe fonts, no need to import from Google Fonts
+    // For web-safe fonts, no need to import
     const webSafeFonts = [
       'Arial',
       'Verdana',
@@ -38,9 +38,9 @@ function applyCustomFont(fontName) {
         }
       `;
     } else {
-      // For fonts that may not be installed locally, try importing from Google Fonts
+      // For Google Fonts, use their API
       style.textContent = `
-        @import url('https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}');
         * {
           font-family: ${fontFamily};
         }
@@ -65,4 +65,3 @@ function applyCustomFont(fontName) {
       applyCustomFont(data.selectedFont);
     }
   });
-  

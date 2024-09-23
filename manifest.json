@@ -3,7 +3,13 @@
     "name": "Custom Font Changer",
     "version": "1.2",
     "description": "Customize the font on webpages like ChatGPT.",
-    "permissions": ["scripting", "activeTab", "storage"],
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "https://www.googleapis.com/",
+        "https://fonts.googleapis.com/"
+    ],
     "host_permissions": ["<all_urls>"],
     "action": {
       "default_title": "Select Custom Font",
@@ -24,6 +30,11 @@
         "js": ["content.js"],
         "run_at": "document_start"
       }
+    ],
+    "web_accessible_resources": [
+      {
+        "resources": ["config.ini"],
+        "matches": ["<all_urls>"]
+      }
     ]
   }
-  

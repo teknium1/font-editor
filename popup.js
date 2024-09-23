@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const fontSelect = document.getElementById('fontSelect');
     const applyButton = document.getElementById('applyButton');
   
-    // List of fonts to populate the dropdown menu
+    // Replace the existing fonts array with this:
     const fonts = [
       'Arial',
       'Verdana',
@@ -26,13 +26,51 @@ document.addEventListener('DOMContentLoaded', function () {
       // Add more fonts as desired
     ];
   
-    // Populate the dropdown menu with fonts
-    fonts.forEach(function (font) {
-      const option = document.createElement('option');
-      option.value = font;
-      option.textContent = font;
-      fontSelect.appendChild(option);
-    });
+    // Add this function to read the config file
+    function readConfig() {
+      return fetch(chrome.runtime.getURL('config.ini'))
+        .then(response => response.text())
+        .then(text => {
+          const lines = text.split('\n');
+          const config = {};
+          lines.forEach(line => {
+            if (line.includes('=')) {
+              const [key, value] = line.split('=').map(part => part.trim());
+              config[key] = value;
+            }
+          });
+          return config;
+        });
+    }
+  
+    // Modify the fetchGoogleFonts function
+    function fetchGoogleFonts() {
+      readConfig().then(config => {
+        const apiKey = config.API_KEY;
+        fetch(`https://www.googleapis.com/webfonts/v1/webfonts?key=${apiKey}`)
+          .then(response => response.json())
+          .then(data => {
+            const googleFonts = data.items.map(font => font.family);
+            fonts.push(...googleFonts);
+            populateDropdown();
+          })
+          .catch(error => console.error('Error fetching Google Fonts:', error));
+      });
+    }
+  
+    // Modify the existing code to use this function
+    function populateDropdown() {
+      fontSelect.innerHTML = ''; // Clear existing options
+      fonts.forEach(function (font) {
+        const option = document.createElement('option');
+        option.value = font;
+        option.textContent = font;
+        fontSelect.appendChild(option);
+      });
+    }
+  
+    // Call this function instead of directly populating the dropdown
+    fetchGoogleFonts();
   
     // Load the saved font preference (if any)
     chrome.storage.local.get('selectedFont', function (data) {
@@ -104,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'Lucida Console'
       ];
   
-      // Determine the CSS code based on whether the font is web-safe
+      // Determine the CSS code based on whether the font is web-safe or Google Font
       if (webSafeFonts.includes(fontName)) {
         // For web-safe fonts, no need to import
         styleElement.textContent = `
@@ -113,10 +151,9 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         `;
       } else {
-        // For other fonts, import from Google Fonts
-        const fontNameEncoded = encodeURIComponent(fontName.replace(/ /g, '+'));
+        // For Google Fonts, use their API
         styleElement.textContent = `
-          @import url('https://fonts.googleapis.com/css2?family=${fontNameEncoded}&display=swap');
+          @import url('https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}');
           * {
             font-family: '${fontName}', sans-serif !important;
           }
@@ -127,4 +164,3 @@ document.addEventListener('DOMContentLoaded', function () {
       document.head.appendChild(styleElement);
     }
   });
-  
