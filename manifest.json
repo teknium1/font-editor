@@ -1,0 +1,26 @@
+{
+    "manifest_version": 3,
+    "name": "Custom Font Changer",
+    "version": "1.0",
+    "description": "Customize the font on webpages like ChatGPT.",
+    "permissions": ["scripting", "activeTab"],
+    "action": {
+      "default_title": "Toggle Custom Font",
+      "default_icon": {
+        "16": "icons/icon16.png",
+        "32": "icons/icon32.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+      }
+    },
+    "background": {
+      "service_worker": "background.js"
+    },
+    "content_scripts": [
+      {
+        "matches": ["https://chat.openai.com/*"],
+        "js": ["content.js"],
+        "run_at": "document_start"
+      }
+    ]
+  }

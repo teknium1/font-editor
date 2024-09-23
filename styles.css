@@ -1,0 +1,7 @@
+/* styles.css */
+
+@import url('https://fonts.googleapis.com/css2?family=YourCustomFontName&display=swap');
+
+* {
+  font-family: 'YourCustomFontName', sans-serif !important;
+}
