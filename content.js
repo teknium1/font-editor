@@ -1,3 +1,68 @@
 // content.js
 
-// This file can be empty if we're only injecting CSS via the background script.
+// Function to inject the custom font style
+function applyCustomFont(fontName) {
+    console.log('Applying custom font:', fontName);
+  
+    // Remove existing custom font style if any
+    const existingStyle = document.getElementById('customFontStyle');
+    if (existingStyle) {
+      existingStyle.remove();
+    }
+  
+    // Create a new style element
+    const style = document.createElement('style');
+    style.id = 'customFontStyle';
+  
+    // Define the font-family CSS property
+    let fontFamily = `'${fontName}', sans-serif !important`;
+  
+    // For web-safe fonts, no need to import from Google Fonts
+    const webSafeFonts = [
+      'Arial',
+      'Verdana',
+      'Helvetica',
+      'Times New Roman',
+      'Georgia',
+      'Courier New',
+      'Tahoma',
+      'Trebuchet MS',
+      'Impact',
+      'Lucida Console'
+    ];
+  
+    if (webSafeFonts.includes(fontName)) {
+      style.textContent = `
+        * {
+          font-family: ${fontFamily};
+        }
+      `;
+    } else {
+      // For fonts that may not be installed locally, try importing from Google Fonts
+      style.textContent = `
+        @import url('https://fonts.googleapis.com/css2?family=${encodeURIComponent(fontName)}&display=swap');
+        * {
+          font-family: ${fontFamily};
+        }
+      `;
+    }
+  
+    document.head.appendChild(style);
+  }
+  
+  // Listen for messages from the popup script
+  chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    console.log('Content script received message:', request);
+    if (request.action === 'updateFont') {
+      applyCustomFont(request.font);
+      sendResponse({ status: 'Font applied' });
+    }
+  });
+  
+  // Apply the saved font when the content script runs
+  chrome.storage.local.get('selectedFont', function (data) {
+    if (data.selectedFont) {
+      applyCustomFont(data.selectedFont);
+    }
+  });
+  
